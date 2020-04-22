@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import "./Login.scss";
-import { Form, Checkbox, Button, Icon, Grid, Divider } from "semantic-ui-react";
+import {
+  Form,
+  Checkbox,
+  Button,
+  Icon,
+  Grid,
+  Divider,
+  Transition,
+} from "semantic-ui-react";
 
 const loginForm = (
   <Grid.Column>
@@ -57,11 +65,34 @@ const registerForm = (
 
 function Login() {
   const [isLoginForm, triggerFormChange] = useState(true);
+  const [loginFormVisibility, triggerLoginFormVisibility] = useState(true);
+  const [registerFormVisibility, triggerRegisterFormVisibility] = useState(
+    false
+  );
 
   return (
     <div className="flex-box flex-col jy-center algn-center page-login">
       <Grid className="login-form" columns={3} relaxed="very" stackable>
-        {isLoginForm ? loginForm : registerForm}
+        <Transition
+          visible={loginFormVisibility}
+          onHide={() => {
+            triggerFormChange(!isLoginForm);
+            triggerRegisterFormVisibility(true);
+          }}
+          unmountOnHide
+        >
+          {loginForm}
+        </Transition>
+        <Transition
+          visible={registerFormVisibility}
+          onHide={() => {
+            triggerFormChange(!isLoginForm);
+            triggerLoginFormVisibility(true);
+          }}
+          unmountOnHide
+        >
+          {registerForm}
+        </Transition>
 
         <Grid.Column>
           <Divider vertical> 或者 </Divider>
@@ -71,7 +102,11 @@ function Login() {
         <Grid.Column verticalAlign="middle">
           <Button
             type="primary"
-            onClick={() => triggerFormChange(!isLoginForm)}
+            onClick={() =>
+              isLoginForm
+                ? triggerLoginFormVisibility(false)
+                : triggerRegisterFormVisibility(false)
+            }
           >
             {isLoginForm ? "还没有账号？立即注册！" : "已有账号？立即登录！"}
           </Button>
