@@ -10,16 +10,18 @@
   .actions-bar {
     padding: 0 20px;
   }
+
   .logo {
     font-size: 20px;
     font-weight: bold;
-    cursor: default;
+    cursor: pointer;
 
     img {
       width: 48px;
       height: auto;
     }
   }
+
   .actions-bar {
     font-size: 14px;
     font-weight: 500;
@@ -34,13 +36,18 @@
         z-index: 9;
         position: absolute;
         left: 0;
-        top: 100%;
+        top: 24px;
         display: block;
         width: 0;
         height: 2px;
-        background-color: $borderBlack;
+        background-color: #4d8df6;
+      }
+
+      a {
+        color: white;
       }
     }
+
     .action:hover::after {
       width: 100%;
     }
@@ -50,9 +57,14 @@
       margin: 0 20px;
       cursor: pointer;
     }
+
     .header-avatar {
       width: 42px;
       height: auto;
+    }
+
+    .waiting-for-learning {
+      user-select: none;
     }
   }
 }

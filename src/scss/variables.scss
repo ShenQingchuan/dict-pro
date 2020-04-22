@@ -1,9 +1,12 @@
-// 公共变量定义
-$textColor: rgba(0,0,1, 0.78);
+/* 公共变量定义 */
+
+$background-white: rgba(255, 255, 253, 0.87);
+
+$textColor: rgba(0, 0, 1, 0.78);
 
 // 边框颜色
-$borderBlack: rgba(0,0,1, 0.62);
+$borderBlack: rgba(0, 0, 1, 0.62);
 
 // 阴影颜色
-$boxShadowShallow: rgba(0,0,0, 0.15);
-$boxShadowDark: rgba(0,0,0, 0.2);
+$boxShadowShallow: rgba(0, 0, 0, 0.15);
+$boxShadowDark: rgba(0, 0, 0, 0.2);

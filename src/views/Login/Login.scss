@@ -1,0 +1,26 @@
+@import '../../scss/variables.scss';
+
+.page-login {
+  width: 100%;
+  height: 100%;
+  padding: 20px 0;
+
+  .login-form {
+    width: 60%;
+    margin: 20px auto;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 10px $boxShadowShallow;
+    background-color: $background-white;
+
+    .title {
+      font-weight: bold;
+      font-size: 20px;
+      margin: 0 0 20px 0;
+    }
+  }
+
+  .third-party-login {
+    margin-top: 20px;
+  }
+}
