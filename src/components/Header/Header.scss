@@ -6,19 +6,25 @@
   box-shadow: 0 5px 10px $boxShadowShallow;
   border-radius: 0 0 15px 15px;
 
-  .logo,
+  .logo-container,
   .actions-bar {
     padding: 0 20px;
   }
 
-  .logo {
+  .logo-container {
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
 
-    img {
+    .img-logo {
       width: 48px;
       height: auto;
+    }
+
+    .text-logo {
+      width: 120px;
+      height: auto;
+      margin-right: 10px;
     }
   }
 

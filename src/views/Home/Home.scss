@@ -1,3 +1,5 @@
+@import "../../scss/variables.scss";
+
 .page-home {
   padding: 20px;
 
@@ -7,5 +9,50 @@
     margin-bottom: 30px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .home-guide {
+    h3 {
+      margin-bottom: 5px;
+    }
+
+    .sub-title {
+      margin-top: 0;
+      margin-bottom: 5px;
+      font-size: $largeFontSize;
+      color: grey;
+    }
+
+    h3,
+    .sub-title {
+      text-align: center;
+    }
+
+    .function-introduce-grid {
+      padding: 10px;
+      user-select: none;
+
+      &-item {
+        height: 133px;
+        margin: 20px 0;
+        padding: 20px;
+
+        img {
+          width: 100%;
+        }
+
+        &-content {
+          .title {
+            font-size: $largerFontSize;
+            font-weight: bold;
+            margin-bottom: 10px;
+          }
+
+          .description {
+            color: grey;
+          }
+        }
+      }
+    }
   }
 }
