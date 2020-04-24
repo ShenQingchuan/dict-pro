@@ -1,7 +1,7 @@
 'use strict';
 
 const Service = require('egg').Service;
-const { genSalt, hash } = require('bcryptjs');
+const { genSalt, hash, compare } = require('bcryptjs');
 const HTTPResponse = require('../utils/HTTPResponse');
 
 class UserService extends Service {
@@ -23,6 +23,28 @@ class UserService extends Service {
     this.ctx.body = HTTPResponse(100, '注册成功！', {
       newUser: newRecord,
     });
+  }
+
+  async login() {
+    const reqBody = this.ctx.request.body;
+    const foundUser = await this.ctx.model.User.findOne({
+      userName: reqBody.userName,
+    }).select('+password');
+    // 校验密码
+    const passwordValidate = await compare(reqBody.password, foundUser.password);
+    if (passwordValidate) {
+      // 登录成功生成 Token
+      const token = this.app.jwt.sign({
+        uid: foundUser.id,
+      }, this.config.jwt.secret, {
+        expiresIn: '1h',
+      });
+      this.ctx.body = HTTPResponse(100, '登录成功！', {
+        token,
+      });
+    } else {
+      this.ctx.body = HTTPResponse(440, '密码不正确！');
+    }
   }
 }
 

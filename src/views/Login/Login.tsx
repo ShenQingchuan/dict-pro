@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, createContext } from "react";
 import "./Login.scss";
 import {
   Form,
@@ -8,14 +8,36 @@ import {
   Grid,
   Divider,
   Label,
+  TransitionablePortal,
+  Segment,
+  Header,
+  Message,
 } from "semantic-ui-react";
+import HTTPRequest from "../../utils/HTTPRequest";
+import md5 from "md5";
+import { useHistory } from "react-router-dom";
 
-type ValidateSetter = React.Dispatch<React.SetStateAction<string>>;
+type hookSetter<T> = React.Dispatch<React.SetStateAction<T>>;
+type FormContextType = {
+  isLoginForm: boolean;
+  userName: string;
+  password: string;
+  showRegisterSuccessTip: boolean;
+  setIsLoginForm: hookSetter<boolean>;
+  setUserName: hookSetter<string>;
+  setPassword: hookSetter<string>;
+  setShowRegisterSuccessTip: hookSetter<boolean>;
+};
 
-// 自定义校验 Hooks
+const FormContext = createContext<any>({});
+
+// 自定义校验
+function checkResult(r: string) {
+  return r === "";
+}
 function userNameFormatValidate(
   userName: string,
-  setValidateResult: ValidateSetter
+  setValidateResult: hookSetter<string>
 ) {
   if (!userName.length) {
     setValidateResult("还没有填写用户名！");
@@ -29,7 +51,7 @@ function userNameFormatValidate(
 }
 function passwordFormatValidate(
   password: string,
-  setValidateResult: ValidateSetter
+  setValidateResult: hookSetter<string>
 ) {
   if (!password.length) {
     setValidateResult("还没有填写密码！");
@@ -44,79 +66,173 @@ function passwordFormatValidate(
 
 let LoginForm = () => {
   // 表单内容
-  const [userName, setUserName] = useState("");
-  const [passowrd, setPassowrd] = useState("");
+  const {
+    userName,
+    password,
+    showRegisterSuccessTip,
+    setUserName,
+    setPassword,
+  }: FormContextType = useContext(FormContext);
 
   // 表单校验
   const [userNameValidateResult, setUserNameValidateResult] = useState("");
   const [passwordValidateResult, setPasswordValidateResult] = useState("");
 
+  // 请求响应的错误提示
+  const [showPortal, setShowPortal] = useState(false);
+  const [portalMessage, setPortalMessage] = useState("");
+
+  const history = useHistory();
+
+  const RequestLogin = async () => {
+    const res = await HTTPRequest.post("/login", {
+      userName,
+      password: md5(password),
+    });
+    if (res.data.code === 100) {
+      localStorage.setItem("dp_token", res.data.token);
+      history.push("/");
+    } else {
+      setShowPortal(true);
+      setPortalMessage(res.data.msg);
+    }
+  };
+
   return (
-    <Grid.Column>
-      <Form>
-        <div className="title">
-          <Icon name="book"></Icon>
-          登录我的专英词库账户
-        </div>
+    <>
+      {showRegisterSuccessTip && (
+        <Message success>
+          <Message.Header>注册成功</Message.Header>
+          <p>现在就立刻登录吧！</p>
+        </Message>
+      )}
+      {
+        <TransitionablePortal
+          closeOnTriggerClick
+          openOnTriggerClick
+          open={showPortal}
+          onHide={() => setShowPortal(false)}
+        >
+          <Segment
+            style={{ left: "20%", position: "fixed", top: "20%", zIndex: 1000 }}
+          >
+            <Header>
+              <Icon color="red" name="exclamation circle" />
+              发生错误
+            </Header>
+            <p>{portalMessage}</p>
+          </Segment>
+        </TransitionablePortal>
+      }
+      <Grid.Column>
+        <Form>
+          <div className="title">
+            <Icon name="book"></Icon>
+            登录我的专英词库账户
+          </div>
 
-        {/* 输入用户名 */}
-        <Form.Field>
-          <label>用户名</label>
-          <input
-            onChange={(e) => {
-              setUserName(e.target.value);
-              userNameFormatValidate(e.target.value, setUserNameValidateResult);
-            }}
-            placeholder="请输入用户名"
-          />
-          {userNameValidateResult.length !== 0 ? (
-            <Label basic color="red" pointing="above">
-              {userNameValidateResult}
-            </Label>
-          ) : (
-            void 0
-          )}
-        </Form.Field>
-        {/* 输入密码 */}
-        <Form.Field>
-          <label>密码</label>
-          <input
-            onChange={(e) => {
-              setPassowrd(e.target.value);
-              passwordFormatValidate(e.target.value, setPasswordValidateResult);
-            }}
-            type="password"
-            placeholder="请输入密码"
-          />
-          {passwordValidateResult.length !== 0 ? (
-            <Label basic color="red" pointing="above">
-              {passwordValidateResult}
-            </Label>
-          ) : (
-            void 0
-          )}
-        </Form.Field>
+          {/* 输入用户名 */}
+          <Form.Field>
+            <label>用户名</label>
+            <input
+              value={userName}
+              onChange={(e) => {
+                setUserName(e.target.value);
+                userNameFormatValidate(
+                  e.target.value,
+                  setUserNameValidateResult
+                );
+              }}
+              placeholder="请输入用户名"
+            />
+            {userNameValidateResult.length !== 0 ? (
+              <Label basic color="red" pointing="above">
+                {userNameValidateResult}
+              </Label>
+            ) : (
+              void 0
+            )}
+          </Form.Field>
+          {/* 输入密码 */}
+          <Form.Field>
+            <label>密码</label>
+            <input
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                passwordFormatValidate(
+                  e.target.value,
+                  setPasswordValidateResult
+                );
+              }}
+              type="password"
+              placeholder="请输入密码"
+            />
+            {passwordValidateResult.length !== 0 ? (
+              <Label basic color="red" pointing="above">
+                {passwordValidateResult}
+              </Label>
+            ) : (
+              void 0
+            )}
+          </Form.Field>
 
-        <Form.Field>
-          <Checkbox label="在 7 天内记住我" />
-        </Form.Field>
-        <Button type="submit" color="teal" fluid>
-          登录
-        </Button>
-      </Form>
-    </Grid.Column>
+          <Form.Field>
+            <Checkbox label="在 7 天内记住我" />
+          </Form.Field>
+          <Button onClick={RequestLogin} color="teal" fluid>
+            登录
+          </Button>
+        </Form>
+      </Grid.Column>
+    </>
   );
 };
+
 let RegisterForm = () => {
   // 表单内容
-  const [userName, setUserName] = useState("");
-  const [passowrd, setPassowrd] = useState("");
-  const [reinput, setReinput] = useState("");
+  const {
+    userName,
+    password,
+    setUserName,
+    setPassword,
+    setIsLoginForm,
+    setShowRegisterSuccessTip,
+  }: FormContextType = useContext(FormContext);
+  const [, setReinput] = useState("");
 
   // 表单校验
   const [userNameValidateResult, setUserNameValidateResult] = useState("");
   const [passwordValidateResult, setPasswordValidateResult] = useState("");
   const [reinputValidateResult, setReinputValidateResult] = useState("");
+
+  // 请求响应的错误提示
+  const [showPortal, setShowPortal] = useState(false);
+  const [portalMessage, setPortalMessage] = useState("");
+
+  // 注册请求
+  const RegisterRequest = async () => {
+    if (
+      checkResult(userNameValidateResult) &&
+      checkResult(passwordValidateResult) &&
+      checkResult(reinputValidateResult)
+    ) {
+      const res = await HTTPRequest.post("/user", {
+        userName,
+        password: md5(password),
+      });
+      if (res.data.code === 510) {
+        setShowPortal(true);
+        setPortalMessage(res.data.msg);
+        return;
+      }
+      setIsLoginForm(true);
+      setShowRegisterSuccessTip(true);
+    } else {
+      setShowPortal(true);
+      setPortalMessage("请先检查您的输入格式！");
+    }
+  };
 
   return (
     <Grid.Column>
@@ -149,7 +265,7 @@ let RegisterForm = () => {
           <label>密码</label>
           <input
             onChange={(e) => {
-              setPassowrd(e.target.value);
+              setPassword(e.target.value);
               passwordFormatValidate(e.target.value, setPasswordValidateResult);
             }}
             type="password"
@@ -170,7 +286,7 @@ let RegisterForm = () => {
             onChange={(e) => {
               setReinput(e.target.value);
               setReinputValidateResult(
-                passowrd !== e.target.value ? "两次密码不一致" : ""
+                password !== e.target.value ? "两次密码不一致" : ""
               );
             }}
             type="password"
@@ -184,9 +300,25 @@ let RegisterForm = () => {
             void 0
           )}
         </Form.Field>
-        <Button type="submit" color="teal" fluid>
+        <Button onClick={RegisterRequest} color="teal" fluid>
           注册
         </Button>
+        <TransitionablePortal
+          closeOnTriggerClick
+          openOnTriggerClick
+          open={showPortal}
+          onHide={() => setShowPortal(false)}
+        >
+          <Segment
+            style={{ left: "20%", position: "fixed", top: "20%", zIndex: 1000 }}
+          >
+            <Header>
+              <Icon color="red" name="exclamation circle" />
+              发生错误
+            </Header>
+            <p>{portalMessage}</p>
+          </Segment>
+        </TransitionablePortal>
       </Form>
     </Grid.Column>
   );
@@ -194,41 +326,57 @@ let RegisterForm = () => {
 
 // 登录页面组件
 function Login() {
-  const [isLoginForm, triggerFormChange] = useState(true);
+  const [isLoginForm, setIsLoginForm] = useState(true);
+  const [showRegisterSuccessTip, setShowRegisterSuccessTip] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
-    <div className="flex-box flex-col jy-center algn-center page-login">
-      <Grid className="login-form" columns={3} relaxed="very" stackable>
-        <Grid.Column width="10">
-          {isLoginForm ? <LoginForm /> : <RegisterForm />}
-        </Grid.Column>
+    <FormContext.Provider
+      value={{
+        isLoginForm,
+        userName,
+        password,
+        showRegisterSuccessTip,
+        setIsLoginForm,
+        setUserName,
+        setPassword,
+        setShowRegisterSuccessTip,
+      }}
+    >
+      <div className="flex-box flex-col jy-center algn-center page-login">
+        <Grid className="login-form" columns={3} relaxed="very" stackable>
+          <Grid.Column width="10">
+            {isLoginForm ? <LoginForm /> : <RegisterForm />}
+          </Grid.Column>
 
-        <Grid.Column width="1">
-          <Divider vertical> 或者 </Divider>
-        </Grid.Column>
+          <Grid.Column width="1">
+            <Divider vertical> 或者 </Divider>
+          </Grid.Column>
 
-        {/* 注册与第三方登录 */}
-        <Grid.Column width="5" verticalAlign="middle">
-          <Button
-            type="primary"
-            onClick={() => {
-              triggerFormChange(!isLoginForm);
-            }}
-          >
-            {isLoginForm ? "还没有账号？立即注册！" : "已有账号？立即登录！"}
-          </Button>
-          <div className="third-party-login">
-            <h5>您还可以选择第三方平台账号登录：</h5>
+          {/* 注册与第三方登录 */}
+          <Grid.Column width="5" verticalAlign="middle">
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsLoginForm(!isLoginForm);
+              }}
+            >
+              {isLoginForm ? "还没有账号？立即注册！" : "已有账号？立即登录！"}
+            </Button>
+            <div className="third-party-login">
+              <h5>您还可以选择第三方平台账号登录：</h5>
 
-            <div className="flex-box">
-              <Button color="blue" icon="qq"></Button>
-              <Button color="red" icon="weibo"></Button>
-              <Button color="green" icon="weixin"></Button>
+              <div className="flex-box">
+                <Button color="blue" icon="qq"></Button>
+                <Button color="red" icon="weibo"></Button>
+                <Button color="green" icon="weixin"></Button>
+              </div>
             </div>
-          </div>
-        </Grid.Column>
-      </Grid>
-    </div>
+          </Grid.Column>
+        </Grid>
+      </div>
+    </FormContext.Provider>
   );
 }
 

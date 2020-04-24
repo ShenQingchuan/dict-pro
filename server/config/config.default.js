@@ -47,6 +47,9 @@ module.exports = appInfo => {
       },
       domainWhiteList: [ 'http://localhost:3000' ],
     },
+    jwt: {
+      secret: process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'dev-dict-pro',
+    },
   };
 
   // use for cookie sign key, should change to your own and keep security

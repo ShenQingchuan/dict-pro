@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 const mockAvatarUrl =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR-24zVWocAtJ1XfNwy_Dik0UL-RATVgHHaDpCj-VyBvxlE_C5u&usqp=CAU";
 
-const loginedHeaderActions = () => {
+const LoginedHeaderActions = () => {
   return (
     <>
       <div className="action">单词收藏夹</div>
@@ -40,7 +40,7 @@ const loginedHeaderActions = () => {
 };
 
 function Header() {
-  const [authed] = useState(localStorage.getItem("dictPro-auth"));
+  const [token] = useState(localStorage.getItem("dp_token"));
   let history = useHistory();
 
   return (
@@ -58,8 +58,8 @@ function Header() {
       </div>
       <div className="flex-box algn-center actions-bar">
         <div className="action">我要贡献</div>
-        {authed === "1" ? (
-          loginedHeaderActions
+        {token !== null ? (
+          <LoginedHeaderActions />
         ) : (
           <Button primary onClick={() => history.push("/login")}>
             登录/注册

@@ -4,11 +4,12 @@ import QuickSearch from "../../components/QuickSearch/QuickSearch";
 import { Divider, Container, Header, Grid } from "semantic-ui-react";
 
 const buildIntroduceGridCard = (
+  index: number,
   cover: any,
   title: string,
   description: string
 ) => (
-  <Grid.Column className="flex-box function-introduce-grid-item">
+  <Grid.Column key={index} className="flex-box function-introduce-grid-item">
     <Grid columns={2} verticalAlign="middle">
       <Grid.Column>
         <img src={cover} alt="" />
@@ -58,9 +59,9 @@ const HomeGuide = () => {
         className="function-introduce-grid"
         verticalAlign="middle"
       >
-        {introduceGridCard.map((e) =>
-          buildIntroduceGridCard(e.cover, e.title, e.description)
-        )}
+        {introduceGridCard.map((e, i) => {
+          return buildIntroduceGridCard(i, e.cover, e.title, e.description);
+        })}
       </Grid>
     </Container>
   );
