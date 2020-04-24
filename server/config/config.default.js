@@ -2,6 +2,8 @@
 
 'use strict';
 
+const HTTPResponse = require('../app/utils/HTTPResponse');
+
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
@@ -17,7 +19,33 @@ module.exports = appInfo => {
         server: {
           poolSize: 40,
         },
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useNewUrlParser: true,
       },
+    },
+    onerror: {
+      json(err, ctx) {
+        ctx.status = 200; // everything is fine! I can handle it!
+
+        if (/MongoError: E\d{5}/.test(String(err).slice(0, 18))) {
+          const [ , errCode ] = String(err).slice(0, 18).split(': ')[1];
+          const errMsg = String(err).slice(19);
+          switch (errCode) {
+            default:
+              ctx.body = HTTPResponse(510, `MongoDB 错误代码: ${errCode}，错误提示信息：${errMsg}`);
+              return;
+          }
+        }
+
+        ctx.body = HTTPResponse(990, `${err}`);
+      },
+    },
+    security: {
+      csrf: {
+        enable: false,
+      },
+      domainWhiteList: [ 'http://localhost:3000' ],
     },
   };
 
