@@ -30,6 +30,7 @@ class UserService extends Service {
     const foundUser = await this.ctx.model.User.findOne({
       userName: reqBody.userName,
     }).select('+password');
+
     // 校验密码
     const passwordValidate = await compare(reqBody.password, foundUser.password);
     if (passwordValidate) {
@@ -39,8 +40,16 @@ class UserService extends Service {
       }, this.config.jwt.secret, {
         expiresIn: '1h',
       });
+
+      const { userName, email, createTime, avatarUrl } = foundUser;
       this.ctx.body = HTTPResponse(100, '登录成功！', {
         token,
+        publicInfo: {
+          userName,
+          email,
+          createTime,
+          avatarUrl,
+        },
       });
     } else {
       this.ctx.body = HTTPResponse(440, '密码不正确！');

@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import "./Header.scss";
 import { Image, Dropdown, Label, Button, Icon } from "semantic-ui-react";
 import { useHistory } from "react-router-dom";
-
-const mockAvatarUrl =
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR-24zVWocAtJ1XfNwy_Dik0UL-RATVgHHaDpCj-VyBvxlE_C5u&usqp=CAU";
+import { GlobalContextType } from "../../typings";
+import { getHashAvatar } from "../../utils/getHashAvatar";
+import { GlobalContext } from "../..";
+import logoutAction from "../../utils/logoutActions";
 
 const LoginedHeaderActions = () => {
+  const {
+    setTokenExists,
+    userPublicInfo,
+  }: GlobalContextType = useContext(GlobalContext);
+
   return (
     <>
       <div className="action">单词收藏夹</div>
@@ -28,20 +34,29 @@ const LoginedHeaderActions = () => {
             会员服务
           </Dropdown.Item>
           <Dropdown.Divider />
-          <Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              logoutAction();
+              setTokenExists(false);
+            }}
+          >
             <Icon name="log out"></Icon>
             退出登录
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-      <Image className="header-avatar" src={mockAvatarUrl} avatar />
+      <Image
+        className="header-avatar"
+        src={userPublicInfo.avatarUrl || getHashAvatar(userPublicInfo.userName)}
+        avatar
+      />
     </>
   );
 };
 
 function Header() {
-  const [token] = useState(localStorage.getItem("dp_token"));
   let history = useHistory();
+  const { tokenExists }: GlobalContextType = useContext(GlobalContext);
 
   return (
     <div className="flex-box algn-center jy-btwn component-header">
@@ -58,7 +73,7 @@ function Header() {
       </div>
       <div className="flex-box algn-center actions-bar">
         <div className="action">我要贡献</div>
-        {token !== null ? (
+        {tokenExists ? (
           <LoginedHeaderActions />
         ) : (
           <Button primary onClick={() => history.push("/login")}>

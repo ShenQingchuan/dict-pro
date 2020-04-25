@@ -13,21 +13,12 @@ import {
   Header,
   Message,
 } from "semantic-ui-react";
-import HTTPRequest from "../../utils/HTTPRequest";
-import md5 from "md5";
 import { useHistory } from "react-router-dom";
-
-type hookSetter<T> = React.Dispatch<React.SetStateAction<T>>;
-type FormContextType = {
-  isLoginForm: boolean;
-  userName: string;
-  password: string;
-  showRegisterSuccessTip: boolean;
-  setIsLoginForm: hookSetter<boolean>;
-  setUserName: hookSetter<string>;
-  setPassword: hookSetter<string>;
-  setShowRegisterSuccessTip: hookSetter<boolean>;
-};
+import md5 from "md5";
+import HTTPRequest from "../../utils/HTTPRequest";
+import jwt from "jsonwebtoken";
+import { hookSetter, FormContextType, GlobalContextType } from "../../typings";
+import { GlobalContext } from "../..";
 
 const FormContext = createContext<any>({});
 
@@ -83,18 +74,34 @@ let LoginForm = () => {
   const [portalMessage, setPortalMessage] = useState("");
 
   const history = useHistory();
+  const { setTokenExists, setUserPublicInfo }: GlobalContextType = useContext(
+    GlobalContext
+  );
 
   const RequestLogin = async () => {
     const res = await HTTPRequest.post("/login", {
       userName,
       password: md5(password),
     });
+    const d = res.data.data;
     if (res.data.code === 100) {
-      localStorage.setItem("dp_token", res.data.token);
+      const decoded: any = jwt.decode(d.token, { complete: true });
+      localStorage.setItem("dp_uid", decoded.payload.uid);
+      localStorage.setItem("dp_utoken", d.token);
+      localStorage.setItem("dp_uinfo", JSON.stringify(d.publicInfo));
+
+      setUserPublicInfo({
+        userName: d.publicInfo.userName,
+        email: d.publicInfo.email,
+        avatarUrl: d.publicInfo.email,
+        createTime: new Date(d.publicInfo.createTime),
+      });
+      setTokenExists(true);
+
       history.push("/");
     } else {
+      setPortalMessage(d.msg);
       setShowPortal(true);
-      setPortalMessage(res.data.msg);
     }
   };
 
