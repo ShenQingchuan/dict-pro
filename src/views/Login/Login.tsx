@@ -19,6 +19,7 @@ import HTTPRequest from "../../utils/HTTPRequest";
 import jwt from "jsonwebtoken";
 import { hookSetter, FormContextType, GlobalContextType } from "../../typings";
 import { GlobalContext } from "../..";
+import { getHashAvatar } from "../../utils/getHashAvatar";
 
 const FormContext = createContext<any>({});
 
@@ -78,6 +79,7 @@ let LoginForm = () => {
     GlobalContext
   );
 
+  // 登录过程：
   const RequestLogin = async () => {
     const res = await HTTPRequest.post("/login", {
       userName,
@@ -88,14 +90,11 @@ let LoginForm = () => {
       const decoded: any = jwt.decode(d.token, { complete: true });
       localStorage.setItem("dp_uid", decoded.payload.uid);
       localStorage.setItem("dp_utoken", d.token);
+      if (!d.publicInfo.avatarUrl) {
+        d.publicInfo.avatarUrl = getHashAvatar(d.userName);
+      }
       localStorage.setItem("dp_uinfo", JSON.stringify(d.publicInfo));
-
-      setUserPublicInfo({
-        userName: d.publicInfo.userName,
-        email: d.publicInfo.email,
-        avatarUrl: d.publicInfo.email,
-        createTime: new Date(d.publicInfo.createTime),
-      });
+      setUserPublicInfo(d.publicInfo);
       setTokenExists(true);
 
       history.push("/");
@@ -352,8 +351,8 @@ function Login() {
       }}
     >
       <div className="flex-box flex-col jy-center algn-center page-login">
-        <Grid className="login-form" columns={3} relaxed="very" stackable>
-          <Grid.Column width="10">
+        <Grid className="page-form" columns={3} relaxed="very" stackable>
+          <Grid.Column width="8">
             {isLoginForm ? <LoginForm /> : <RegisterForm />}
           </Grid.Column>
 
@@ -362,7 +361,7 @@ function Login() {
           </Grid.Column>
 
           {/* 注册与第三方登录 */}
-          <Grid.Column width="5" verticalAlign="middle">
+          <Grid.Column width="6" verticalAlign="middle">
             <Button
               type="primary"
               onClick={() => {

@@ -3,7 +3,6 @@ import "./Header.scss";
 import { Image, Dropdown, Label, Button, Icon } from "semantic-ui-react";
 import { useHistory } from "react-router-dom";
 import { GlobalContextType } from "../../typings";
-import { getHashAvatar } from "../../utils/getHashAvatar";
 import { GlobalContext } from "../..";
 import logoutAction from "../../utils/logoutActions";
 
@@ -23,14 +22,14 @@ const LoginedHeaderActions = () => {
       <Dropdown className="drop-menu" text="用户中心">
         <Dropdown.Menu>
           <Dropdown.Item>
-            <Icon name="bell outline"></Icon>
+            <Icon name="bell outline"/>
             通知消息{" "}
             <Label color="red" circular>
               {22}
             </Label>
           </Dropdown.Item>
           <Dropdown.Item>
-            <Icon name="gem outline"></Icon>
+            <Icon name="gem outline"/>
             会员服务
           </Dropdown.Item>
           <Dropdown.Divider />
@@ -40,14 +39,14 @@ const LoginedHeaderActions = () => {
               setTokenExists(false);
             }}
           >
-            <Icon name="log out"></Icon>
+            <Icon name="log out"/>
             退出登录
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
       <Image
         className="header-avatar"
-        src={userPublicInfo.avatarUrl || getHashAvatar(userPublicInfo.userName)}
+        src={userPublicInfo.avatarUrl}
         avatar
       />
     </>
