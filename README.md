@@ -1,44 +1,33 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Dict-Pro 专业英语小助手
 
-## Available Scripts
+## 技术栈
 
-In the project directory, you can run:
+- Egg.js：采用较为企业级的 Node.js 框架
+- MongoDB 4：采用结构化较为宽松的 NoSQL 数据库
+- React 16.x hooks：采用了 TypeScript 模式开发，并纯使用函数式组件和 Hooks，并没有引入 Redux，尝试缩小项目体积，但不排除根据需要后续引入 React-Redux
+- ECDict：[点击此处访问该词典项目的 Github 官方仓库](https://github.com/skywind3000/ecdict)
+
+## 开发时所用脚本命令
+
+在项目根目录, 使用下方命令启动:
 
 ### `yarn start`
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+使用开发者模式运行该项目的前端。<br />
+打开 [http://localhost:3000](http://localhost:3000) 来查看显示的效果。
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+编辑代码时会热刷新。<br />
+同时代码格式 error 也会展示出来。
 
 ### `yarn test`
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+在可交互模式下运行测试用例。<br />
+查看 Facebook 的测试指导文档[running tests](https://facebook.github.io/create-react-app/docs/running-tests)查看更多信息。
 
 ### `yarn build`
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+打包整个项目到 `build` 文件夹。<br />
+它会正确地打包本项目的 React 前端部分，优化到最好的性能表现。
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+文件名上会加上 hash。<br />
+之后前端部分就可以部署啦。
