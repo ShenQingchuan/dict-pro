@@ -85,21 +85,21 @@ let LoginForm = () => {
       userName,
       password: md5(password),
     });
-    const d = res.data.data;
+    const rd = res.data.data;
     if (res.data.code === 100) {
-      const decoded: any = jwt.decode(d.token, { complete: true });
+      const decoded: any = jwt.decode(rd.token, { complete: true });
       localStorage.setItem("dp_uid", decoded.payload.uid);
-      localStorage.setItem("dp_utoken", d.token);
-      if (!d.publicInfo.avatarUrl) {
-        d.publicInfo.avatarUrl = getHashAvatar(d.userName);
+      localStorage.setItem("dp_utoken", rd.token);
+      if (!rd.publicInfo.avatarUrl) {
+        rd.publicInfo.avatarUrl = getHashAvatar(rd.userName);
       }
-      localStorage.setItem("dp_uinfo", JSON.stringify(d.publicInfo));
-      setUserPublicInfo(d.publicInfo);
+      localStorage.setItem("dp_uinfo", JSON.stringify(rd.publicInfo));
+      setUserPublicInfo(rd.publicInfo);
       setTokenExists(true);
 
       history.push("/");
     } else {
-      setPortalMessage(d.msg);
+      setPortalMessage(rd.msg);
       setShowPortal(true);
     }
   };

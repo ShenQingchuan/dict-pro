@@ -7,7 +7,7 @@ const WordDefinition = {
   sw: Required(Unique(t(StringType))), // 模糊匹配词
   word: Required(Unique(t(StringType))), // 词条原文
   phonetic: SetDefault(t(StringType), ''), // 音标
-  definition: SetDefault(t(StringType), ''), // 定义
+  definition: SetDefault(t(StringType), ''), // 英文释义
   translation: Required(t(StringType)), // 中文翻译
   pos: SetDefault(t(StringType), ''), // 词语位置
   collins: SetDefault(t(NumberType), 0), // 柯林斯星级

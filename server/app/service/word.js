@@ -17,7 +17,7 @@ class WordService extends Service {
     const result = Object.assign({}, found._doc, {
       definition: found.definition.split('\n'),
       translation: found.translation.split('\n'),
-      tag: found.tag.split(' ').map(t => (wordTagMap[t] ? wordTagMap[t] : t)),
+      tag: found.tag !== '' ? found.tag.split(' ').map(t => (wordTagMap[t] ? wordTagMap[t] : t)) : '',
       exchange: found.exchange.split('/').map(e =>
         (wordExchangeMap[e[0]] ? (`${wordExchangeMap[e[0]]}: ` + e.slice(2)) : e)
       ),

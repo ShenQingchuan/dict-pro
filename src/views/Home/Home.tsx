@@ -1,7 +1,8 @@
-import React from "react";
+import React, { createContext, useState } from "react";
 import "./Home.scss";
 import QuickSearch from "../../components/QuickSearch/QuickSearch";
 import { Divider, Container, Header, Grid } from "semantic-ui-react";
+import { WordQueryResult } from "../../typings";
 
 const buildIntroduceGridCard = (
   index: number,
@@ -67,13 +68,24 @@ const HomeGuide = () => {
   );
 };
 
+export const HomeContext = createContext<any>({});
+
 function Home() {
+  const [queryResult, setQueryResult] = useState({} as WordQueryResult);
+
   return (
-    <div className="page-home">
-      <QuickSearch />
-      <Divider className="after-search-divider" />
-      <HomeGuide />
-    </div>
+    <HomeContext.Provider
+      value={{
+        queryResult,
+        setQueryResult,
+      }}
+    >
+      <div className="page-home">
+        <QuickSearch />
+        <Divider className="after-search-divider" />
+        <HomeGuide />
+      </div>
+    </HomeContext.Provider>
   );
 }
 

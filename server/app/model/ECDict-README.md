@@ -155,11 +155,11 @@ CSV 数据库虽然没有记录该字段，但每次加载到内存以后会自�
 
 这是参考 Mdx 词典格式引入的模糊匹配键值，当你使用 stardict.py 中的 match 方法时，如果第三个参数为 True，将会使用 `sw` 字段进行匹配。默认 False 使用 `word` 字段匹配时，是严格匹配字符串，那么你搜索 "long-time" 这个单词，只能匹配到 "long-time" 开头的所有单词，比如：
 
-    long-time, long-time base, long-time period, long-time cycle, ...
+long-time, long-time base, long-time period, long-time cycle, ...
 
 但是如果进行模糊匹配，按照 `sw` 字段匹配 "long-time" 这个单词，将会搜索出所有 `sw` 以 "longtime" 开头的单词，比如：
 
-    long-time, longtime, long time, long-time base, longtime base, ...
+long-time, longtime, long time, long-time base, longtime base, ...
 
 单词随着时间的推移，最开始是一个词组，然后变为一个减号链接的组合词，最后用的多了，减号也省了。很多词典里不一定能完全包括 long-time/long time/longtime 这类词的所有形态，但首次查询搜索失败时，可以 match 一下相同 sw 的单词，然后能够定位到该单词的其他形态。
 
