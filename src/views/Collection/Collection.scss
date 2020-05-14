@@ -1,0 +1,43 @@
+@import "../../scss/variables";
+
+.page-collection {
+  margin: 40px auto;
+  @media screen and (min-width: 1200px) {
+    width: 1200px;
+  }
+
+  .search-bar {
+    width: 50%;
+  }
+
+  .word-list-container {
+    width: 60%;
+    margin: 20px 0 !important;
+
+    .word-list-item {
+      padding: 12px !important;
+      transition: opacity 0.3s ease;
+
+      .word-itself {
+        font-size: $headerFontSize;
+        margin-bottom: 10px;
+      }
+      .word-desc {
+        font-size: $largeFontSize;
+        line-height: 20px;
+      }
+
+      .item-right {
+        .item-action {
+          margin: 0 5px;
+        }
+        .collect-time {
+          margin-top: 10px;
+        }
+      }
+    }
+    .reviewed-shadow {
+      opacity: 0.5;
+    }
+  }
+}

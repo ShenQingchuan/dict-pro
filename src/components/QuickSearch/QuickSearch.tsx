@@ -8,19 +8,95 @@ import {
   Button,
   Message,
   Label,
+  Icon,
 } from "semantic-ui-react";
 import { HomeContext } from "../../views/Home/Home";
 import HTTPRequest from "../../utils/HTTPRequest";
-import { HomeContextType } from "../../typings";
+import { HomeContextType, WordQueryResult } from "../../typings";
+import { message } from "antd";
+
+type WordCardPropType = {
+  showContent: boolean;
+};
+function WordCard(prop: WordCardPropType) {
+  const { queryResult }: HomeContextType = useContext(HomeContext);
+  const { showContent } = prop;
+
+  // 收藏单词的请求
+  const submitCollect = async () => {
+    const res = await HTTPRequest.post(`/collect`, {
+      wordId: queryResult?.id,
+      word: queryResult?.word,
+    });
+    console.log(res);
+    message[res.data.code === 100 ? "success" : "error"](res.data.msg);
+  };
+
+  return (
+    <Transition
+      visible={queryResult.id !== undefined || showContent}
+      unmountOnHide
+      animation="fade"
+      duration={400}
+    >
+      <Card className="query-card">
+        <Card.Content>
+          <Card.Header className="query-header flex-box">
+            <div className="word">
+              {queryResult?.word ?? "暂未查询到该单词！"}
+            </div>
+            <span>
+              {queryResult.phonetic
+                ? `/ ${queryResult?.phonetic} /`
+                : "请确认您输入到是否为英语"}
+            </span>
+          </Card.Header>
+          <Card.Meta className="query-meta">
+            {queryResult?.translation?.map((e) => (
+              <div key={e}>
+                <span>{e}</span> <br />
+              </div>
+            ))}
+          </Card.Meta>
+          {typeof queryResult?.tag !== "string" && !showContent && (
+            <Card.Description className="tags">
+              <label>所属标签：</label>
+              <br />
+              {queryResult?.tag?.map((t) => (
+                <Label key={t} basic size="tiny" color="blue">
+                  {t}
+                </Label>
+              ))}
+            </Card.Description>
+          )}
+          <div className="query-actions flex jy-end algn-center tb-gap">
+            <Button className="lr-gap" primary>
+              查看详情
+            </Button>
+            <Button
+              onClick={submitCollect}
+              className="lr-gap"
+              icon
+              labelPosition="left"
+              color="yellow"
+            >
+              <Icon name="star" />
+              收藏
+            </Button>
+          </div>
+        </Card.Content>
+      </Card>
+    </Transition>
+  );
+}
 
 function QuickSearch() {
   const [word, setWord] = useState("");
+  const [forceShowCardContent, setForceShowCardContent] = useState(false);
   const [tip, setTip] = useState("");
   const [showTip, setShowTip] = useState(false);
 
-  const { queryResult, setQueryResult }: HomeContextType = useContext(
-    HomeContext
-  );
+  const { setQueryResult }: HomeContextType = useContext(HomeContext);
 
   const displayTip = (msg: string) => {
     setTip(msg);
@@ -29,7 +105,6 @@ function QuickSearch() {
       setShowTip(false);
     }, 2000);
   };
-
   const submitQuery = async () => {
     if (word.length === 0) {
       // 显示错误提示
@@ -39,14 +114,16 @@ function QuickSearch() {
 
     const res = await HTTPRequest.get(`/query?word=${word}`);
     const rd = res.data.data;
-    console.log(rd.result);
-    if (rd.result) {
+    if (rd?.result) {
       setQueryResult(rd.result);
+    } else {
+      setForceShowCardContent(true);
+      setQueryResult({} as WordQueryResult); // 重设查询结果
     }
   };
 
   return (
-    <div className="flex-box flex-col jy-center algn-center component-quick-search">
+    <div className="flex flex-col jy-center algn-center component-quick-search">
       <img className="logo" src={require("../../assets/logo.png")} alt="" />
       <Transition
         visible={showTip}
@@ -70,39 +147,7 @@ function QuickSearch() {
         action={<Button onClick={submitQuery}>查询</Button>}
         placeholder="输入你想搜索的单词..."
       />
-      <Transition
-        visible={queryResult.id !== undefined}
-        unmountOnHide
-        animation="fade"
-        duration={400}
-      >
-        <Card className="query-card">
-          <Card.Content>
-            <Card.Header className="query-header flex-box">
-              <div className="word">{queryResult?.word}</div>
-              <span>/{queryResult?.phonetic}/</span>
-            </Card.Header>
-            <Card.Meta className="query-meta">
-              {queryResult?.translation?.map((e) => (
-                <>
-                  <span>{e}</span> <br />
-                </>
-              ))}
-            </Card.Meta>
-            {typeof queryResult?.tag !== "string" && (
-              <Card.Description className="tags">
-                <label>所属标签：</label>
-                <br />
-                {queryResult?.tag?.map((t) => (
-                  <Label basic size="tiny" color="blue">
-                    {t}
-                  </Label>
-                ))}
-              </Card.Description>
-            )}
-          </Card.Content>
-        </Card>
-      </Transition>
+      <WordCard showContent={forceShowCardContent} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import "./App.scss";
 import Header from "./components/Header/Header";
 import Home from "./views/Home/Home";
 import Login from "./views/Login/Login";
+import Collection from "./views/Collection/Collection";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Switch>
           <Route path="/" exact component={Home}/>
           <Route path="/login" exact component={Login}/>
+          <Route path="/collection" exact component={Collection}/>
         </Switch>
       </HashRouter>
     </div>

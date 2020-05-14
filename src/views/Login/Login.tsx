@@ -85,6 +85,7 @@ let LoginForm = () => {
       userName,
       password: md5(password),
     });
+    console.log(res);
     const rd = res.data.data;
     if (res.data.code === 100) {
       const decoded: any = jwt.decode(rd.token, { complete: true });
@@ -350,7 +351,7 @@ function Login() {
         setShowRegisterSuccessTip,
       }}
     >
-      <div className="flex-box flex-col jy-center algn-center page-login">
+      <div className="flex flex-col jy-center algn-center page-login">
         <Grid className="page-form" columns={3} relaxed="very" stackable>
           <Grid.Column width="8">
             {isLoginForm ? <LoginForm /> : <RegisterForm />}
@@ -373,7 +374,7 @@ function Login() {
             <div className="third-party-login">
               <h5>您还可以选择第三方平台账号登录：</h5>
 
-              <div className="flex-box">
+              <div className="flex">
                 <Button color="blue" icon="qq"></Button>
                 <Button color="red" icon="weibo"></Button>
                 <Button color="green" icon="weixin"></Button>

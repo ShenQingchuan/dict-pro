@@ -26,7 +26,14 @@ module.exports = appInfo => {
     },
     onerror: {
       json(err, ctx) {
+        const originStatus = ctx.status;
         ctx.status = 200; // everything is fine! I can handle it!
+
+        // authorization failed:
+        if (originStatus === 401) {
+          ctx.body = HTTPResponse(941, '还未登录，请登录后进行此操作！');
+          return;
+        }
 
         if (/MongoError: E\d{5}/.test(String(err).slice(0, 18))) {
           const [ , errCode ] = String(err).slice(0, 18).split(': ')[1];

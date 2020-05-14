@@ -1,12 +1,13 @@
-import React, { useContext } from "react";
+import React, {useContext} from "react";
 import "./Header.scss";
-import { Image, Dropdown, Label, Button, Icon } from "semantic-ui-react";
-import { useHistory } from "react-router-dom";
-import { GlobalContextType } from "../../typings";
-import { GlobalContext } from "../..";
+import {Image, Dropdown, Label, Button, Icon} from "semantic-ui-react";
+import {useHistory} from "react-router-dom";
+import {GlobalContextType} from "../../typings";
+import {GlobalContext} from "../..";
 import logoutAction from "../../utils/logoutActions";
 
 const LoginedHeaderActions = () => {
+  let history = useHistory();
   const {
     setTokenExists,
     userPublicInfo,
@@ -14,7 +15,7 @@ const LoginedHeaderActions = () => {
 
   return (
     <>
-      <div className="action">单词收藏夹</div>
+      <div className="action" onClick={() => history.push("/collection")}>单词收藏夹</div>
       <Label as="a" color="teal" className="waiting-for-learning">
         复习
         <Label.Detail>30</Label.Detail>
@@ -32,7 +33,7 @@ const LoginedHeaderActions = () => {
             <Icon name="gem outline"/>
             会员服务
           </Dropdown.Item>
-          <Dropdown.Divider />
+          <Dropdown.Divider/>
           <Dropdown.Item
             onClick={() => {
               logoutAction();
@@ -55,12 +56,12 @@ const LoginedHeaderActions = () => {
 
 function Header() {
   let history = useHistory();
-  const { tokenExists }: GlobalContextType = useContext(GlobalContext);
+  const {tokenExists}: GlobalContextType = useContext(GlobalContext);
 
   return (
-    <div className="flex-box algn-center jy-btwn component-header">
+    <div className="flex algn-center jy-btwn component-header">
       <div
-        className="flex-box algn-center logo-container"
+        className="flex algn-center logo-container"
         onClick={() => history.push("/")}
       >
         <img
@@ -70,10 +71,10 @@ function Header() {
         />
         专业英语翻译助手
       </div>
-      <div className="flex-box algn-center actions-bar">
+      <div className="flex algn-center actions-bar">
         <div className="action">我要贡献</div>
         {tokenExists ? (
-          <LoginedHeaderActions />
+          <LoginedHeaderActions/>
         ) : (
           <Button primary onClick={() => history.push("/login")}>
             登录/注册

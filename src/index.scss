@@ -18,7 +18,7 @@ code {
     monospace;
 }
 
-.flex-box {
+.flex {
   display: flex;
 }
 .flex-col {
@@ -44,4 +44,13 @@ code {
 }
 .algn-end {
   align-items: flex-end;
+}
+
+.tb-gap {
+  margin-top: 5px !important; ;
+  margin-right: 5px !important;
+}
+.lr-gap {
+  margin-top: 5px !important; ;
+  margin-right: 5px !important;
 }
