@@ -11,6 +11,7 @@ module.exports = app => {
   router.get('/query', controller.word.queryWord);
   router.get('/collections', needAuth, controller.word.getCollections);
   router.post('/collect', needAuth, controller.word.addToOwnCollection);
+  router.put('/hit', controller.word.hitCollectedWord);
   router.post('/user', controller.user.register);
   router.post('/login', controller.user.login);
 };

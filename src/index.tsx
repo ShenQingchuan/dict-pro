@@ -13,6 +13,13 @@ const GlobalStoredApp = () => {
   const [tokenExists, setTokenExists] = useState(
     localStorage.getItem("dp_utoken") !== null
   );
+  window.addEventListener("hashchange", () => {
+    const newHash = window.location.hash;
+    const hashParts = newHash.split("?");
+    if ((hashParts[0] === "#/login", hashParts[1] === "relogined=1")) {
+      setTokenExists(false);
+    }
+  });
 
   let userInfoStr = localStorage.getItem("dp_uinfo")!;
   const [userPublicInfo, setUserPublicInfo] = useState(

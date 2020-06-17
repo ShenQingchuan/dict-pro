@@ -1,5 +1,6 @@
 import axios from "axios";
 import { message } from "antd";
+import logoutAction from "./logoutActions";
 
 const baseURL =
   process.env.NODE_ENV === "production"
@@ -32,11 +33,13 @@ HTTPRequest.interceptors.request.use(
 HTTPRequest.interceptors.response.use(
   (response) => {
     if (response.data.code === 941) {
-      localStorage.removeItem("dp_utoken");
-      localStorage.removeItem("dp_uid");
-      window.location.hash = "/login";
+      logoutAction();
+      window.location.hash = "/login?relogined=1";
       message.warning(response.data.msg);
     } // token 已经过期，删除 token 并触发路由跳转到登录页
+    else if (response.data.code === 100) {
+      message.success(response.data.msg)
+    }
 
     return response;
   },

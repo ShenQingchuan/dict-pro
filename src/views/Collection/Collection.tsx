@@ -12,21 +12,39 @@ import {
 import HTTPRequest from "../../utils/HTTPRequest";
 import { WordQueryResult } from "../../typings";
 
-type WordItemProp = {
+const isReviewed = (last: string, create: string, now: Date) =>
+  new Date(last).getDate() === now.getDate() && last !== create;
+type WordItemPropType = {
   word: {
     item: WordQueryResult;
     createTime: string;
+    lastHitTime: string;
   };
 };
-function WordItem(prop: WordItemProp) {
-  let [reviewed, setReviewed] = useState(false);
-  const word = prop.word;
+function WordItem(prop: WordItemPropType) {
+  const hitTime = new Date();
+  const [word, setWord] = useState(prop.word);
+  let [reviewed, setReviewed] = useState(
+    isReviewed(word.lastHitTime, word.createTime, hitTime)
+  );
+
+  const hitWord = async () => {
+    const res = await HTTPRequest.put("/hit", {
+      wordId: word.item._id,
+      hitTime: hitTime.toISOString(),
+    });
+    if (res.data.code === 100) {
+      setReviewed(true); // 已打卡
+      setWord({ ...word, lastHitTime: hitTime.toISOString() });
+    }
+  };
 
   return (
-    <List.Item
-      className={`word-list-item ${reviewed ? "reviewed-shadow" : ""}`}
-    >
-      <List.Content floated="left" className="item-left">
+    <List.Item className="word-list-item">
+      <List.Content
+        floated="left"
+        className={`item-left ${reviewed ? "reviewed-shadow" : ""}`}
+      >
         <List.Header as="a" className="word-itself">
           {word.item.word}
         </List.Header>
@@ -46,14 +64,13 @@ function WordItem(prop: WordItemProp) {
           <Button
             icon
             labelPosition="left"
-            onClick={() => {
-              setReviewed(!reviewed);
-            }}
+            onClick={hitWord}
             className="item-action"
             color="yellow"
+            disabled={reviewed}
           >
             <Icon name="key" />
-            {reviewed ? "恢复" : "打卡"}
+            {reviewed ? "今日已打卡" : "打卡"}
           </Button>
           <Button className="item-action" color="teal">
             <Button.Content>写笔记</Button.Content>
@@ -65,6 +82,9 @@ function WordItem(prop: WordItemProp) {
         <div className="collect-time flex algn-center">
           收藏于 {new Date(word.createTime).toLocaleString("zh")}
         </div>
+        <div className="last-hit-time flex algn-center">
+          上次打卡 {new Date(word.lastHitTime).toLocaleString("zh")}
+        </div>
       </List.Content>
     </List.Item>
   );
@@ -75,6 +95,7 @@ function Collection() {
     {
       item: WordQueryResult;
       createTime: string;
+      lastHitTime: string;
     }[]
   >([]);
 
@@ -96,9 +117,8 @@ function Collection() {
       />
       <Container className="word-list-container">
         <List divided relaxed selection>
-          {collections.map((e) => (
-            <WordItem key={e.item.id} word={e} />
-          ))}
+          {collections &&
+            collections.map((e) => <WordItem key={e.item.id} word={e} />)}
         </List>
       </Container>
     </div>

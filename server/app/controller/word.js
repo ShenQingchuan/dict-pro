@@ -14,6 +14,10 @@ class WordController extends Controller {
   async getCollections() {
     await this.ctx.service.word.getCollections();
   }
+
+  async hitCollectedWord() {
+    await this.ctx.service.word.hit();
+  }
 }
 
 module.exports = WordController;

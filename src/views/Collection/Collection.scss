@@ -31,13 +31,21 @@
         .item-action {
           margin: 0 5px;
         }
+        .collect-time, .last-hit-time {
+          width: 100%;
+        }
         .collect-time {
           margin-top: 10px;
+        }
+        .last-hit-time {
+          font-weight: bold;
+          color: #009ea3;
+          margin-top: 12px;
         }
       }
     }
     .reviewed-shadow {
-      opacity: 0.5;
+      opacity: 0.6;
     }
   }
 }

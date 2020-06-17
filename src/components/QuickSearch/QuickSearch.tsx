@@ -13,7 +13,6 @@ import {
 import { HomeContext } from "../../views/Home/Home";
 import HTTPRequest from "../../utils/HTTPRequest";
 import { HomeContextType, WordQueryResult } from "../../typings";
-import { message } from "antd";
 
 type WordCardPropType = {
   showContent: boolean;
@@ -24,12 +23,10 @@ function WordCard(prop: WordCardPropType) {
 
   // 收藏单词的请求
   const submitCollect = async () => {
-    const res = await HTTPRequest.post(`/collect`, {
+    await HTTPRequest.post(`/collect`, {
       wordId: queryResult?.id,
       word: queryResult?.word,
     });
-    console.log(res);
-    message[res.data.code === 100 ? "success" : "error"](res.data.msg);
   };
 
   return (
@@ -123,7 +120,14 @@ function QuickSearch() {
   };
 
   return (
-    <div className="flex flex-col jy-center algn-center component-quick-search">
+    <div
+      className="flex flex-col jy-center algn-center component-quick-search"
+      onKeyPress={(e) => {
+        if (e.key === 'Enter') {
+          submitQuery()
+        }
+      }}
+    >
       <img className="logo" src={require("../../assets/logo.png")} alt="" />
       <Transition
         visible={showTip}

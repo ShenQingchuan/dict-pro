@@ -1,21 +1,22 @@
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 import "./Header.scss";
-import {Image, Dropdown, Label, Button, Icon} from "semantic-ui-react";
-import {useHistory} from "react-router-dom";
-import {GlobalContextType} from "../../typings";
-import {GlobalContext} from "../..";
+import { Image, Dropdown, Label, Button, Icon } from "semantic-ui-react";
+import { useHistory } from "react-router-dom";
+import { GlobalContextType } from "../../typings";
+import { GlobalContext } from "../..";
 import logoutAction from "../../utils/logoutActions";
 
 const LoginedHeaderActions = () => {
   let history = useHistory();
-  const {
-    setTokenExists,
-    userPublicInfo,
-  }: GlobalContextType = useContext(GlobalContext);
+  const { setTokenExists, userPublicInfo }: GlobalContextType = useContext(
+    GlobalContext
+  );
 
   return (
     <>
-      <div className="action" onClick={() => history.push("/collection")}>单词收藏夹</div>
+      <div className="action" onClick={() => history.push("/collection")}>
+        单词收藏夹
+      </div>
       <Label as="a" color="teal" className="waiting-for-learning">
         复习
         <Label.Detail>30</Label.Detail>
@@ -23,40 +24,40 @@ const LoginedHeaderActions = () => {
       <Dropdown className="drop-menu" text="用户中心">
         <Dropdown.Menu>
           <Dropdown.Item>
-            <Icon name="bell outline"/>
+            <Icon name="file alternate outline" />
+            个人资料
+          </Dropdown.Item>
+          <Dropdown.Item>
+            <Icon name="bell outline" />
             通知消息{" "}
             <Label color="red" circular>
               {22}
             </Label>
           </Dropdown.Item>
           <Dropdown.Item>
-            <Icon name="gem outline"/>
+            <Icon name="gem outline" />
             会员服务
           </Dropdown.Item>
-          <Dropdown.Divider/>
+          <Dropdown.Divider />
           <Dropdown.Item
             onClick={() => {
               logoutAction();
               setTokenExists(false);
             }}
           >
-            <Icon name="log out"/>
+            <Icon name="log out" />
             退出登录
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
-      <Image
-        className="header-avatar"
-        src={userPublicInfo.avatarUrl}
-        avatar
-      />
+      <Image className="header-avatar" src={userPublicInfo.avatarUrl} avatar />
     </>
   );
 };
 
 function Header() {
   let history = useHistory();
-  const {tokenExists}: GlobalContextType = useContext(GlobalContext);
+  const { tokenExists }: GlobalContextType = useContext(GlobalContext);
 
   return (
     <div className="flex algn-center jy-btwn component-header">
@@ -74,7 +75,7 @@ function Header() {
       <div className="flex algn-center actions-bar">
         <div className="action">我要贡献</div>
         {tokenExists ? (
-          <LoginedHeaderActions/>
+          <LoginedHeaderActions />
         ) : (
           <Button primary onClick={() => history.push("/login")}>
             登录/注册
