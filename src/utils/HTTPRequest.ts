@@ -37,7 +37,7 @@ HTTPRequest.interceptors.response.use(
       window.location.hash = "/login?relogined=1";
       message.warning(response.data.msg);
     } // token 已经过期，删除 token 并触发路由跳转到登录页
-    else if (response.data.code === 100) {
+    else if (response.data.code === 100 && !response.data.data?.silent) {
       message.success(response.data.msg)
     }
 

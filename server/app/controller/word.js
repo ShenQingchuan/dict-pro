@@ -18,6 +18,10 @@ class WordController extends Controller {
   async hitCollectedWord() {
     await this.ctx.service.word.hit();
   }
+
+  async getNeedHitCount() {
+    await this.ctx.service.word.needHitCount();
+  }
 }
 
 module.exports = WordController;

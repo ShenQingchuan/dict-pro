@@ -7,6 +7,10 @@ const { wordTagMap, wordExchangeMap, findChapter } = require('../utils/WordsUtil
 class WordService extends Service {
   async queryWordService() {
     const word = this.ctx.query && this.ctx.query.word;
+    if (!word) {
+      this.ctx.body = HTTPResponse(906, '没有提供要查询的单词！', null);
+      return;
+    }
     const chapter = `Dictionary${word[0].toUpperCase()}`;
     const found = await this.ctx.model[chapter].findOne({
       word,
@@ -141,6 +145,22 @@ class WordService extends Service {
       },
     });
     this.ctx.body = HTTPResponse(100, '单词打卡成功！', updateResult);
+  }
+  async needHitCount() {
+    const foundCollection = await this.ctx.model.Collection.findOne({
+      userId: this.ctx.header.dp_uid,
+    });
+    const needHit = foundCollection.collections.filter(item => {
+      const now = new Date();
+      const nowDate = `${now.getMonth() + 1}-${now.getDate()}`;
+      const lastHitDate = `${item.lastHitTime.getMonth() + 1}-${item.lastHitTime.getDate()}`;
+      return nowDate !== lastHitDate;
+    }).length;
+
+    this.ctx.body = HTTPResponse(100, '获取当前需要复习打卡的单词数量成功', {
+      needHit,
+      silent: true,
+    });
   }
 }
 

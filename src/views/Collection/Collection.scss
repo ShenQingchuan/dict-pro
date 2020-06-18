@@ -1,8 +1,11 @@
 @import "../../scss/variables";
 
 .page-collection {
-  margin: 40px auto;
+  box-sizing: border-box;
+  margin: 40px 0;
+  padding: 40px;
   @media screen and (min-width: 1200px) {
+    max-width: 100%;
     width: 1200px;
   }
 
@@ -31,7 +34,8 @@
         .item-action {
           margin: 0 5px;
         }
-        .collect-time, .last-hit-time {
+        .collect-time,
+        .last-hit-time {
           width: 100%;
         }
         .collect-time {

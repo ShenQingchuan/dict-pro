@@ -1,7 +1,13 @@
 import React, { createContext, useState } from "react";
 import "./Home.scss";
 import QuickSearch from "../../components/QuickSearch/QuickSearch";
-import { Divider, Container, Header, Grid } from "semantic-ui-react";
+import {
+  Divider,
+  Container,
+  Header,
+  Grid,
+  Responsive,
+} from "semantic-ui-react";
 import { WordQueryResult } from "../../typings";
 
 const buildIntroduceGridCard = (
@@ -10,7 +16,13 @@ const buildIntroduceGridCard = (
   title: string,
   description: string
 ) => (
-  <Grid.Column key={index} className="flex-box function-introduce-grid-item">
+  <Grid.Column
+    mobile={16}
+    tablet={8}
+    computer={4}
+    key={index}
+    className="flex-box function-introduce-grid-item"
+  >
     <Grid columns={2} verticalAlign="middle">
       <Grid.Column>
         <img src={cover} alt="" />
@@ -50,10 +62,13 @@ const HomeGuide = () => {
   return (
     <Container className="home-guide">
       <Header as="h3">
-        阅读外语文献时看不懂单词？找不到某个单词在本专业内的翻译方式？
+        阅读外语文献时看不懂单词？
+        <Responsive {...Responsive.onlyMobile} />
+        找不到某个单词在本专业内的翻译方式？
       </Header>
       <div className="sub-title">
-        翻译是一件难事儿，但众人拾柴火焰高，来 DictPro 和大家一起讨论吧！
+        翻译是一件难事儿，但众人拾柴火焰高！
+        <Responsive {...Responsive.onlyMobile} />来 DictPro 和大家一起讨论吧！
       </div>
       <Grid
         columns={4}

@@ -4,6 +4,7 @@ import "./index.scss";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { GlobalContextType } from "./typings";
+import HTTPRequest from "./utils/HTTPRequest";
 
 // 全局上下文 作状态管理用
 export const GlobalContext = createContext<any>({});
@@ -21,6 +22,12 @@ const GlobalStoredApp = () => {
     }
   });
 
+  // 还需复习打卡的单词数量
+  const [needHit, setNeedHit] = useState(0);
+  HTTPRequest.get("/hitCount").then((res) => {
+    setNeedHit(res?.data.data?.needHit);
+  });
+
   let userInfoStr = localStorage.getItem("dp_uinfo")!;
   const [userPublicInfo, setUserPublicInfo] = useState(
     (userInfoStr !== null ? JSON.parse(userInfoStr) : {}) as GlobalContextType
@@ -29,10 +36,13 @@ const GlobalStoredApp = () => {
   return (
     <GlobalContext.Provider
       value={{
+        // 模拟的 React 全局根节点 Redux - 只提供了 值与其Setter
         tokenExists,
         setTokenExists,
         userPublicInfo,
         setUserPublicInfo,
+        needHit,
+        setNeedHit,
       }}
     >
       <App />

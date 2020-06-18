@@ -1,6 +1,6 @@
 import "./Collection.scss";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Container,
   Header,
@@ -8,9 +8,11 @@ import {
   Input,
   Button,
   Icon,
+  Responsive,
 } from "semantic-ui-react";
 import HTTPRequest from "../../utils/HTTPRequest";
-import { WordQueryResult } from "../../typings";
+import { WordQueryResult, GlobalContextType } from "../../typings";
+import { GlobalContext } from "../..";
 
 const isReviewed = (last: string, create: string, now: Date) =>
   new Date(last).getDate() === now.getDate() && last !== create;
@@ -27,6 +29,9 @@ function WordItem(prop: WordItemPropType) {
   let [reviewed, setReviewed] = useState(
     isReviewed(word.lastHitTime, word.createTime, hitTime)
   );
+  const { needHit, setNeedHit }: GlobalContextType = useContext(
+    GlobalContext
+  );
 
   const hitWord = async () => {
     const res = await HTTPRequest.put("/hit", {
@@ -35,6 +40,7 @@ function WordItem(prop: WordItemPropType) {
     });
     if (res.data.code === 100) {
       setReviewed(true); // 已打卡
+      setNeedHit(needHit - 1);
       setWord({ ...word, lastHitTime: hitTime.toISOString() });
     }
   };
@@ -63,20 +69,42 @@ function WordItem(prop: WordItemPropType) {
         <div className="flex algn-center jy-end">
           <Button
             icon
-            labelPosition="left"
             onClick={hitWord}
-            className="item-action"
+            className="flex item-action"
             color="yellow"
             disabled={reviewed}
           >
             <Icon name="key" />
-            {reviewed ? "今日已打卡" : "打卡"}
+            <Responsive
+              className="m-l-10"
+              as={Button.Content}
+              minWidth={Responsive.onlyComputer.minWidth}
+              maxWidth={Responsive.onlyLargeScreen.maxWidth}
+            >
+              {reviewed ? "今日已打卡" : "打卡"}
+            </Responsive>
           </Button>
-          <Button className="item-action" color="teal">
-            <Button.Content>写笔记</Button.Content>
+          <Button icon className="flex item-action" color="teal">
+            <Icon name="sticky note outline" />
+            <Responsive
+              className="m-l-10"
+              as={Button.Content}
+              minWidth={Responsive.onlyComputer.minWidth}
+              maxWidth={Responsive.onlyLargeScreen.maxWidth}
+            >
+              写笔记
+            </Responsive>
           </Button>
-          <Button className="item-action" color="red">
-            <Button.Content>删除</Button.Content>
+          <Button icon className="flex item-action" color="red">
+            <Icon name="trash alternate outline" />
+            <Responsive
+              className="m-l-10"
+              as={Button.Content}
+              minWidth={Responsive.onlyComputer.minWidth}
+              maxWidth={Responsive.onlyLargeScreen.maxWidth}
+            >
+              删除
+            </Responsive>
           </Button>
         </div>
         <div className="collect-time flex algn-center">

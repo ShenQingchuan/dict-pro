@@ -6,6 +6,8 @@ export type GlobalContextType = {
   setTokenExists: hookSetter<boolean>;
   userPublicInfo: UserPublicInfoType;
   setUserPublicInfo: hookSetter<UserPublicInfoType>;
+  needHit: number;
+  setNeedHit: hookSetter<number>;
 };
 export type FormContextType = {
   isLoginForm: boolean;
