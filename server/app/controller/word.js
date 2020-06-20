@@ -11,6 +11,10 @@ class WordController extends Controller {
     await this.ctx.service.word.addToOwnCollection();
   }
 
+  async removeFromCollection() {
+    await this.ctx.service.word.removeFromCollection();
+  }
+
   async getCollections() {
     await this.ctx.service.word.getCollections();
   }

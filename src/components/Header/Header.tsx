@@ -59,11 +59,13 @@ const LoginedHeaderActions = () => {
         minWidth={Responsive.onlyMobile.minWidth}
         maxWidth={Responsive.onlyLargeScreen.maxWidth}
       >
-        {needHit && needHit > 0 && (
+        {needHit && needHit > 0 ? (
           <Label as="a" color="teal" className="waiting-for-review">
             复习
             <Label.Detail>{needHit}</Label.Detail>
           </Label>
+        ) : (
+          void 0
         )}
       </Responsive>
       <Responsive

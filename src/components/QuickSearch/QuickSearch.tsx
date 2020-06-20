@@ -119,7 +119,7 @@ function QuickSearch() {
         setQueryResult({} as WordQueryResult); // 重设查询结果
       }
     },
-    2000,
+    1500,
     true
   );
 

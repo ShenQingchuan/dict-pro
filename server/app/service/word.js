@@ -4,6 +4,23 @@ const Service = require('egg').Service;
 const HTTPResponse = require('../utils/HTTPResponse');
 const { wordTagMap, wordExchangeMap, findChapter } = require('../utils/WordsUtils');
 
+const statusExists = {
+  $project: {
+    collections: {
+      $filter: {
+        input: '$collections',
+        as: 'collections',
+        cond: {
+          $eq: [ '$$collections.status', 1 ],
+        },
+      },
+    },
+  },
+};
+const formatDateToYYYYMM = date => {
+  return `${date.getMonth() + 1}-${date.getDate()}`;
+};
+
 class WordService extends Service {
   async queryWordService() {
     const word = this.ctx.query && this.ctx.query.word;
@@ -96,23 +113,54 @@ class WordService extends Service {
       }
     }
   }
+  async removeFromCollection() {
+    const wordId = this.ctx.request.body.wordId;
+    if (!wordId) {
+      this.ctx.body = HTTPResponse(944, '删除单词时未提供单词 wordId！', null);
+      return;
+    }
+
+    const foundCollection = await this.ctx.model.Collection.findOne({
+      userId: this.ctx.header.dp_uid,
+    });
+    const foundWord = foundCollection.collections.find(item => item.wordId.equals(wordId));
+    if (foundWord.status) {
+      foundWord.status = 0;
+      await foundCollection.save();
+    } else {
+      this.ctx.body = HTTPResponse(945, '要删除的单词不存在于收藏夹中！', null);
+      return;
+    }
+
+    this.ctx.body = HTTPResponse(100, '删除成功！');
+  }
   async getCollections() {
     const reqQuery = this.ctx.query;
     const page = reqQuery.page ? reqQuery.page : 1; // 取得当前分页，默认为 1
 
     const [ foundCollection, aggregation ] = await Promise.all([
-      this.ctx.model.Collection.findOne({
-        userId: this.ctx.header.dp_uid,
-      }, {
-        // 记得按照 page 来对收藏夹的单词列表切片：
-        collections: { $slice: [ (page - 1) * 10, page * 10 ] },
-      }),
       this.ctx.model.Collection.aggregate([
         {
           $match: {
             userId: this.app.mongoose.Types.ObjectId(this.ctx.header.dp_uid),
           },
         },
+        statusExists,
+        {
+          $project: {
+            collections: {
+              $slice: [ '$collections', (page - 1) * 10, 10 ],
+            },
+          },
+        },
+      ]),
+      this.ctx.model.Collection.aggregate([
+        {
+          $match: {
+            userId: this.app.mongoose.Types.ObjectId(this.ctx.header.dp_uid),
+          },
+        },
+        statusExists,
         {
           $project: {
             total: {
@@ -122,17 +170,17 @@ class WordService extends Service {
         },
       ]),
     ]);
-    if (foundCollection === null || !aggregation.length) {
+    if (!foundCollection.length || !aggregation.length) {
       this.ctx.body = HTTPResponse(931, '还没有创建收藏夹', null);
       return;
     }
 
     const collections = [];
-    for (const item of foundCollection.collections) {
+    for (const item of foundCollection[0].collections) {
       const itemWord = await this.ctx.model[item.wordChapter].findOne({
         _id: item.wordId,
       });
-      if (itemWord !== null) {
+      if (itemWord !== null && item.status === 1) {
         const itemObj = itemWord.toObject();
         itemObj.definition = itemObj.definition.split('\n');
         itemObj.translation = itemObj.translation.split('\n');
@@ -174,10 +222,10 @@ class WordService extends Service {
       userId: this.ctx.header.dp_uid,
     });
     const needHit = foundCollection.collections.filter(item => {
-      const now = new Date();
-      const nowDate = `${now.getMonth() + 1}-${now.getDate()}`;
-      const lastHitDate = `${item.lastHitTime.getMonth() + 1}-${item.lastHitTime.getDate()}`;
-      return nowDate !== lastHitDate;
+      const now = formatDateToYYYYMM(new Date());
+      const formatedLastHitDate = formatDateToYYYYMM(item.lastHitTime);
+      const formatedCreateTime = formatDateToYYYYMM(item.createTime);
+      return (now !== formatedLastHitDate || formatedCreateTime === formatedLastHitDate);
     }).length;
 
     this.ctx.body = HTTPResponse(100, '获取当前需要复习打卡的单词数量成功', {

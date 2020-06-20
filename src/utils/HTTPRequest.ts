@@ -47,7 +47,12 @@ HTTPRequest.interceptors.response.use(
             duration: 1,
           })
         : message.destroy();
-    }
+    } else
+      message.error({
+        content: response.data.msg,
+        key: LOADING_KEY,
+        duration: 2,
+      });
 
     return response;
   },

@@ -1,6 +1,6 @@
 import "./Collection.scss";
 
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Container,
   Header,
@@ -23,6 +23,8 @@ type WordItemPropType = {
     createTime: string;
     lastHitTime: string;
   };
+  index: number;
+  handleDelete: (i: number) => void;
 };
 function WordItem(prop: WordItemPropType) {
   const hitTime = new Date();
@@ -42,6 +44,15 @@ function WordItem(prop: WordItemPropType) {
       setNeedHit(needHit - 1);
       setWord({ ...word, lastHitTime: hitTime.toISOString() });
     }
+  };
+
+  const deleteWord = async () => {
+    await HTTPRequest.delete("/collect", {
+      data: {
+        wordId: word.item._id,
+      },
+    });
+    prop.handleDelete(prop.index);
   };
 
   return (
@@ -94,7 +105,12 @@ function WordItem(prop: WordItemPropType) {
               写笔记
             </Responsive>
           </Button>
-          <Button icon className="flex item-action" color="red">
+          <Button
+            onClick={deleteWord}
+            icon
+            className="flex item-action"
+            color="red"
+          >
             <Icon name="trash alternate outline" />
             <Responsive
               className="m-l-10"
@@ -125,26 +141,49 @@ type CollectionItem = {
 function getTotalPageCount(size: number) {
   return Math.ceil(size / 10);
 }
-const collectionCache: { [page: number]: CollectionItem[] } = {};
+const collectionsCache: { [page: number]: CollectionItem[] } = {};
 function Collection() {
   const [collections, setCollections] = useState<CollectionItem[]>([]);
   const [page, setPage] = useState(1);
-  const [totalWordsCount, setTotalWordsCount] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
+
+  const requestByPage = useCallback(async (page: number) => {
+    if (!collectionsCache[page]) {
+      const res = await HTTPRequest.get(`/collections?page=${page}`);
+      setCollections(res?.data?.data?.collections);
+      setTotalPage(getTotalPageCount(res?.data?.data?.total));
+      // 缓存数据：
+      collectionsCache[page] = res?.data?.data?.collections;
+    } else {
+      // 读取缓存：
+      setCollections(collectionsCache[page]);
+    }
+  }, []);
 
   // useEffect => mounted & updated:
   useEffect(() => {
     (async () => {
-      if (!collectionCache[page]) {
-        const res = await HTTPRequest.get(`/collections?page=${page}`);
-        setCollections(res?.data?.data?.collections);
-        collectionCache[page] = res?.data?.data?.collections
-        setTotalWordsCount(res?.data?.data?.total);
-      } else {
-        setCollections(collectionCache[page])
-      }
+      await requestByPage(page);
     })();
-  }, [page]);
+  }, [page, requestByPage]);
 
+  /** 从缓存中删除的重排算法 */
+  const DeleteFromCache = async (i: number) => {
+    collectionsCache[page].splice(i, 1);
+    for (let i = page; i < totalPage; i++) {
+      if (!collectionsCache[i + 1]) {
+        await requestByPage(i + 1);
+      }
+      collectionsCache[i + 1].length &&
+        collectionsCache[i].push(...collectionsCache[i + 1].splice(0, 1));
+    }
+    if (!collectionsCache[totalPage]?.length) {
+      setTotalPage(totalPage - 1);
+    }
+    setCollections([...collectionsCache[page]]);
+  };
+
+  // render:
   return (
     <div className="page-collection">
       <Header as="h1">我的单词收藏夹</Header>
@@ -155,8 +194,17 @@ function Collection() {
       />
       <Container className="word-list-container">
         <List divided relaxed selection>
-          {collections &&
-            collections.map((e) => <WordItem key={e.item.id} word={e} />)}
+          {collections.length &&
+            collections.map((e, i) => (
+              <WordItem
+                key={e.item.id}
+                word={e}
+                index={i}
+                handleDelete={(i) => {
+                  DeleteFromCache(i);
+                }}
+              />
+            ))}
         </List>
         <Pagination
           onPageChange={(e, data) => {
@@ -165,7 +213,7 @@ function Collection() {
             }
           }}
           defaultActivePage={1}
-          totalPages={getTotalPageCount(totalWordsCount)}
+          totalPages={totalPage}
         />
       </Container>
     </div>
