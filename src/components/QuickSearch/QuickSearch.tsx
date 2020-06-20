@@ -13,6 +13,7 @@ import {
 import { HomeContext } from "../../views/Home/Home";
 import HTTPRequest from "../../utils/HTTPRequest";
 import { HomeContextType, WordQueryResult } from "../../typings";
+import { useDebounce } from "../../utils";
 
 type WordCardPropType = {
   showContent: boolean;
@@ -102,29 +103,32 @@ function QuickSearch() {
       setShowTip(false);
     }, 2000);
   };
-  const submitQuery = async () => {
-    if (word.length === 0) {
-      // 显示错误提示
-      displayTip("请输入您要查询的单词！");
-      return;
-    }
+  const submitQuery = useDebounce(
+    async () => {
+      if (word.length === 0) {
+        // 显示错误提示
+        displayTip("请输入您要查询的单词！");
+        return;
+      }
 
-    const res = await HTTPRequest.get(`/query?word=${word}`);
-    const rd = res.data.data;
-    if (rd?.result) {
-      setQueryResult(rd.result);
-    } else {
-      setForceShowCardContent(true);
-      setQueryResult({} as WordQueryResult); // 重设查询结果
-    }
-  };
+      const res = await HTTPRequest.get(`/query?word=${word}`);
+      if (res.data?.data?.result) {
+        setQueryResult(res.data.data.result);
+      } else {
+        setForceShowCardContent(true);
+        setQueryResult({} as WordQueryResult); // 重设查询结果
+      }
+    },
+    2000,
+    true
+  );
 
   return (
     <div
       className="flex flex-col jy-center algn-center component-quick-search"
       onKeyPress={(e) => {
-        if (e.key === 'Enter') {
-          submitQuery()
+        if (e.key === "Enter") {
+          submitQuery();
         }
       }}
     >
