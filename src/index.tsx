@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./index.scss";
 import App from "./App";
@@ -24,9 +24,11 @@ const GlobalStoredApp = () => {
 
   // 还需复习打卡的单词数量
   const [needHit, setNeedHit] = useState(0);
-  HTTPRequest.get("/hitCount").then((res) => {
-    setNeedHit(res?.data.data?.needHit);
-  });
+  useEffect(() => {
+    HTTPRequest.get("/hitCount").then((res) => {
+      setNeedHit(res?.data?.data?.needHit);
+    });
+  }, [])
 
   let userInfoStr = localStorage.getItem("dp_uinfo")!;
   const [userPublicInfo, setUserPublicInfo] = useState(

@@ -69,6 +69,7 @@ let LoginForm = () => {
   // 表单校验
   const [userNameValidateResult, setUserNameValidateResult] = useState("");
   const [passwordValidateResult, setPasswordValidateResult] = useState("");
+  const [remember7days, setRemember7days] = useState(false);
 
   // 请求响应的错误提示
   const [showPortal, setShowPortal] = useState(false);
@@ -84,6 +85,7 @@ let LoginForm = () => {
     const res = await HTTPRequest.post("/login", {
       userName,
       password: md5(password),
+      remember7days
     });
     console.log(res);
     const rd = res.data.data;
@@ -185,7 +187,13 @@ let LoginForm = () => {
           </Form.Field>
 
           <Form.Field>
-            <Checkbox label="在 7 天内记住我" />
+            <Checkbox
+              toggle
+              onChange={() => {
+                setRemember7days(!remember7days);
+              }}
+              label="在 7 天内记住我"
+            />
           </Form.Field>
           <Button onClick={RequestLogin} color="teal" fluid>
             登录

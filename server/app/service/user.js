@@ -33,12 +33,13 @@ class UserService extends Service {
 
     // 校验密码
     const passwordValidate = await compare(reqBody.password, foundUser.password);
+    const expiresIn = reqBody.remember7days ? '7 days' : '2h';
     if (passwordValidate) {
       // 登录成功生成 Token
       const token = this.app.jwt.sign({
         uid: foundUser.id,
       }, this.config.jwt.secret, {
-        expiresIn: '2h',
+        expiresIn,
       });
 
       const { userName, email, createTime, avatarUrl } = foundUser;

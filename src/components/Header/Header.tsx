@@ -14,53 +14,78 @@ import { GlobalContext } from "../..";
 import logoutAction from "../../utils/logoutActions";
 
 const LoginedHeaderActions = () => {
-  const { setTokenExists, userPublicInfo, needHit }: GlobalContextType = useContext(
-    GlobalContext
+  const {
+    setTokenExists,
+    userPublicInfo,
+    needHit,
+  }: GlobalContextType = useContext(GlobalContext);
+
+  const dropDownMenu = (
+    <Dropdown.Menu>
+      <Dropdown.Item>
+        <Icon name="file alternate outline" />
+        个人资料
+      </Dropdown.Item>
+      <Dropdown.Item>
+        <Icon name="bell outline" />
+        通知消息{" "}
+        <Label color="red" circular>
+          {22}
+        </Label>
+      </Dropdown.Item>
+      <Dropdown.Item>
+        <Icon name="gem outline" />
+        会员服务
+      </Dropdown.Item>
+      <Dropdown.Divider />
+      <Dropdown.Item
+        onClick={() => {
+          logoutAction();
+          setTokenExists(false);
+        }}
+      >
+        <Icon name="log out" />
+        退出登录
+      </Dropdown.Item>
+    </Dropdown.Menu>
+  );
+  const avatarComponent = (
+    <Image className="header-avatar" src={userPublicInfo.avatarUrl} avatar />
   );
 
   return (
     <>
       <Responsive
-        minWidth={Responsive.onlyMobile.minWidth} 
+        minWidth={Responsive.onlyMobile.minWidth}
         maxWidth={Responsive.onlyLargeScreen.maxWidth}
       >
-        <Label as="a" color="teal" className="waiting-for-review">
-          复习
-          <Label.Detail>{needHit}</Label.Detail>
-        </Label>
+        {needHit && needHit > 0 && (
+          <Label as="a" color="teal" className="waiting-for-review">
+            复习
+            <Label.Detail>{needHit}</Label.Detail>
+          </Label>
+        )}
       </Responsive>
-      <Responsive {...Responsive.onlyComputer}>
+      <Responsive
+        minWidth={Responsive.onlyTablet.minWidth}
+        maxWidth={Responsive.onlyLargeScreen.maxWidth}
+      >
         <Dropdown className="drop-menu" text="用户中心">
-          <Dropdown.Menu>
-            <Dropdown.Item>
-              <Icon name="file alternate outline" />
-              个人资料
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <Icon name="bell outline" />
-              通知消息{" "}
-              <Label color="red" circular>
-                {22}
-              </Label>
-            </Dropdown.Item>
-            <Dropdown.Item>
-              <Icon name="gem outline" />
-              会员服务
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item
-              onClick={() => {
-                logoutAction();
-                setTokenExists(false);
-              }}
-            >
-              <Icon name="log out" />
-              退出登录
-            </Dropdown.Item>
-          </Dropdown.Menu>
+          {dropDownMenu}
+        </Dropdown>
+        {avatarComponent}
+      </Responsive>
+      <Responsive {...Responsive.onlyMobile}>
+        <Dropdown
+          className="drop-menu"
+          text="用户中心"
+          trigger={avatarComponent}
+          pointing="top right"
+          icon={null}
+        >
+          {dropDownMenu}
         </Dropdown>
       </Responsive>
-      <Image className="header-avatar" src={userPublicInfo.avatarUrl} avatar />
     </>
   );
 };

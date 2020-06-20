@@ -2,7 +2,7 @@
 
 .component-quick-search {
   margin: 10px auto;
-  width: 70%;
+  width: 80%;
 
   .sub-header {
     margin-top: 8px !important;
@@ -46,6 +46,9 @@
   }
 
   .search-inputer {
-    width: 50%;
+    width: 100%;
+  }
+  @media screen and (min-width: 544px) {
+    width: 55%;
   }
 }

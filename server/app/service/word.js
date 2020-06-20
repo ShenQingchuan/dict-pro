@@ -98,18 +98,37 @@ class WordService extends Service {
   }
   async getCollections() {
     const reqQuery = this.ctx.query;
-    const page = reqQuery.page ? reqQuery.page : 0; // 取得当前分页，默认为 0
+    const page = reqQuery.page ? reqQuery.page : 1; // 取得当前分页，默认为 1
 
-    const foundCollection = await this.ctx.model.Collection.findOne({
-      userId: this.ctx.header.dp_uid,
-    });
-    if (foundCollection === null) {
+    const [ foundCollection, aggregation ] = await Promise.all([
+      this.ctx.model.Collection.findOne({
+        userId: this.ctx.header.dp_uid,
+      }, {
+        // 记得按照 page 来对收藏夹的单词列表切片：
+        collections: { $slice: [ (page - 1) * 10, page * 10 ] },
+      }),
+      this.ctx.model.Collection.aggregate([
+        {
+          $match: {
+            userId: this.app.mongoose.Types.ObjectId(this.ctx.header.dp_uid),
+          },
+        },
+        {
+          $project: {
+            total: {
+              $size: '$collections',
+            },
+          },
+        },
+      ]),
+    ]);
+    if (foundCollection === null || !aggregation.length) {
       this.ctx.body = HTTPResponse(931, '还没有创建收藏夹', null);
       return;
     }
-    // 记得按照 page 来对收藏夹的单词列表切片：
+
     const collections = [];
-    for (const item of foundCollection.collections.slice(page * 10, (page + 1) * 10 + 1)) {
+    for (const item of foundCollection.collections) {
       const itemWord = await this.ctx.model[item.wordChapter].findOne({
         _id: item.wordId,
       });
@@ -128,7 +147,11 @@ class WordService extends Service {
         });
       }
     }
-    this.ctx.body = HTTPResponse(100, '获取收藏夹单词列表成功！', collections);
+    this.ctx.body = HTTPResponse(100, '获取收藏夹单词列表成功！', {
+      collections,
+      total: aggregation[0].total,
+      silent: page > 1,
+    });
   }
   async hit() {
     const { wordId, hitTime } = this.ctx.request.body;

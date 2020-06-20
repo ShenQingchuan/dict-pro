@@ -9,6 +9,7 @@ import {
   Button,
   Icon,
   Responsive,
+  Pagination,
 } from "semantic-ui-react";
 import HTTPRequest from "../../utils/HTTPRequest";
 import { WordQueryResult, GlobalContextType } from "../../typings";
@@ -29,9 +30,7 @@ function WordItem(prop: WordItemPropType) {
   let [reviewed, setReviewed] = useState(
     isReviewed(word.lastHitTime, word.createTime, hitTime)
   );
-  const { needHit, setNeedHit }: GlobalContextType = useContext(
-    GlobalContext
-  );
+  const { needHit, setNeedHit }: GlobalContextType = useContext(GlobalContext);
 
   const hitWord = async () => {
     const res = await HTTPRequest.put("/hit", {
@@ -118,22 +117,33 @@ function WordItem(prop: WordItemPropType) {
   );
 }
 
+type CollectionItem = {
+  item: WordQueryResult;
+  createTime: string;
+  lastHitTime: string;
+};
+function getTotalPageCount(size: number) {
+  return Math.ceil(size / 10);
+}
+const collectionCache: { [page: number]: CollectionItem[] } = {};
 function Collection() {
-  const [collections, setCollections] = useState<
-    {
-      item: WordQueryResult;
-      createTime: string;
-      lastHitTime: string;
-    }[]
-  >([]);
+  const [collections, setCollections] = useState<CollectionItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalWordsCount, setTotalWordsCount] = useState(0);
 
-  // useEffect => mounted:
+  // useEffect => mounted & updated:
   useEffect(() => {
     (async () => {
-      const res = await HTTPRequest.get("/collections");
-      setCollections(res.data.data);
+      if (!collectionCache[page]) {
+        const res = await HTTPRequest.get(`/collections?page=${page}`);
+        setCollections(res?.data?.data?.collections);
+        collectionCache[page] = res?.data?.data?.collections
+        setTotalWordsCount(res?.data?.data?.total);
+      } else {
+        setCollections(collectionCache[page])
+      }
     })();
-  }, []);
+  }, [page]);
 
   return (
     <div className="page-collection">
@@ -148,6 +158,15 @@ function Collection() {
           {collections &&
             collections.map((e) => <WordItem key={e.item.id} word={e} />)}
         </List>
+        <Pagination
+          onPageChange={(e, data) => {
+            if (typeof data.activePage === "number") {
+              setPage(data.activePage);
+            }
+          }}
+          defaultActivePage={1}
+          totalPages={getTotalPageCount(totalWordsCount)}
+        />
       </Container>
     </div>
   );
