@@ -225,7 +225,7 @@ class WordService extends Service {
       const now = formatDateToYYYYMM(new Date());
       const formatedLastHitDate = formatDateToYYYYMM(item.lastHitTime);
       const formatedCreateTime = formatDateToYYYYMM(item.createTime);
-      return (now !== formatedLastHitDate || formatedCreateTime === formatedLastHitDate);
+      return item.status && (now !== formatedLastHitDate || formatedCreateTime === formatedLastHitDate);
     }).length;
 
     this.ctx.body = HTTPResponse(100, '获取当前需要复习打卡的单词数量成功', {
